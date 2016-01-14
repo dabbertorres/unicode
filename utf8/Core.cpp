@@ -7,9 +7,9 @@ namespace dbr
 {
 	namespace utf8
 	{
-		bool valid(const byte* coded)
+		bool valid(const byte* coded, std::size_t num)
 		{
-			for(auto ptr = coded; *ptr != '\0'; ++ptr)
+			for(auto ptr = coded; *ptr != '\0' && ptr - coded < num; ++ptr)
 			{
 				std::size_t numSeq = 0;
 				std::uint8_t bitPos = 0b10000000;
@@ -46,7 +46,7 @@ namespace dbr
 					if((*ptr & 0b11000000) != 0b10000000)
 						return false;
 
-					pointVal += (*ptr & 0b111111) << codingBits - 6 * i;
+					pointVal += (*ptr & 0b111111) << (codingBits - 6 * i);	// 6 bits per continuation byte for the value
 				}
 
 				// check if pointVal is >= the minimum value for that byte sequence

@@ -13,11 +13,11 @@ namespace dbr
 
 		// returns npos if valid.
 		// otherwise, returns index of first invalid byte.
-		static bool valid(const byte* coded);
+		bool valid(const byte* coded, std::size_t num = npos);
 
 		// returns number of codepoints in the encoded sequence
 		// assumes sequence is valid
-		static std::size_t strlen(const byte* coded);
+		std::size_t strlen(const byte* coded);
 	}
 }
 

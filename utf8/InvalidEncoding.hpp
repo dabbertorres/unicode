@@ -12,11 +12,6 @@ namespace dbr
 			public:
 				InvalidEncoding(const char* msg);
 				InvalidEncoding(const std::string& msg);
-
-				InvalidEncoding(const InvalidEncoding& other) = default;
-				InvalidEncoding(InvalidEncoding&& other) = default;
-
-				~InvalidEncoding() = default;
 		};
 	}
 }

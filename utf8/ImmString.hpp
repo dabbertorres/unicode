@@ -17,10 +17,23 @@ namespace dbr
 					String();
 					String(const byte* coded);
 
+					// copies 'num' codepoints from 'coded'
+					String(const byte* coded, std::size_t num);
+
+					String(const String& other);
+					String(String&& other);
+
 					~String() = default;
+
+					String substr(std::size_t start = 0, std::size_t count = npos) const;
 
 					// returns number of codepoints in the encoded sequence
 					std::size_t length() const;
+
+					// returns number of bytes
+					std::size_t memSize() const;
+
+					bool empty() const;
 
 					const byte* data() const;
 					
