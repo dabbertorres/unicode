@@ -1,15 +1,15 @@
 #include <iostream>
 #include <string>
 
-#include "ImmString.hpp"
+#include "utf8/ImmutableString.hpp"
 
-using namespace dbr;
+using namespace dbr::unicode;
 
 int main(int argc, char** argv)
 {
-	utf8::imm::String utf8Str(u8"Oh hello—, there!!");
+	utf8::ImmutableString utf8Str(u8"Oh hello—, there!!");
 
-	std::cout << utf8Str.length() << '\n';
+	std::cout << utf8Str.codepoints() << '\n';
 	std::cout << utf8Str.memSize() << '\n';
 
 	std::cout << utf8Str.data() << '\n';
@@ -18,5 +18,6 @@ int main(int argc, char** argv)
 	std::cout << narrowStr << '\n';
 
 	std::cout << "Hello, world!\n";
+
 	return 0;
 }

@@ -1,14 +1,16 @@
-#ifndef DBR_UTF8_STRING_HPP
-#define DBR_UTF8_STRING_HPP
+#ifndef DBR_UNICODE_UTF8_STRING_HPP
+#define DBR_UNICODE_UTF8_STRING_HPP
 
 #include "Core.hpp"
 
 namespace dbr
 {
-	namespace utf8
+	namespace unicode
 	{
-		class String
+		namespace utf8
 		{
+			class String
+			{
 			public:
 				String();
 				String(const byte* coded);
@@ -19,7 +21,7 @@ namespace dbr
 				~String() = default;
 
 				// returns number of codepoints in the encoded sequence
-				std::size_t length() const;
+				std::size_t codepoints() const;
 
 				// returns number of bytes
 				std::size_t memSize() const;
@@ -27,8 +29,9 @@ namespace dbr
 				const byte* data() const;
 
 			private:
-				
-		};
+
+			};
+		}
 	}
 }
 
