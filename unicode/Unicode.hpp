@@ -7,9 +7,10 @@ namespace dbr
 {
 	namespace unicode
 	{
-		using byte = char;
-
 		static constexpr std::size_t npos = -1;
+
+		// length of a null-terminated buffer
+		std::size_t bufferLength(const char* buf);
 	}
 }
 

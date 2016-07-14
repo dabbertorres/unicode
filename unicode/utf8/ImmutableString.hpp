@@ -15,38 +15,41 @@ namespace dbr
 			{
 			public:
 				ImmutableString();
-				ImmutableString(const byte* coded);
+				ImmutableString(const char* coded);
 
-				// copies 'num' codepoints from 'coded'
-				ImmutableString(const byte* coded, std::size_t num);
+				// copies count bytes from coded
+				ImmutableString(const char* coded, std::size_t count);
 
 				ImmutableString(const ImmutableString& other);
 				ImmutableString(ImmutableString&& other);
 
 				~ImmutableString() = default;
 
-				ImmutableString substr(std::size_t start = 0, std::size_t count = npos) const;
+				// copies count (or to end of string if npos) characters from start to a new string
+				ImmutableString substr(std::size_t start, std::size_t count = npos) const;
 
 				// number of individual characters
-				std::size_t chars() const;
+				std::size_t charCount() const;
 
 				// returns number of codepoints
-				std::size_t codepoints() const;
+				std::size_t codepointCount() const;
 
 				// returns number of bytes
 				std::size_t memSize() const;
 
 				bool empty() const;
 
-				const byte* data() const;
+				const char* data() const;
 
 			private:
-				std::shared_ptr<byte> bytes;
+				std::shared_ptr<char> bytes;
 
 				std::size_t numChars;		// length in characters
 				std::size_t numCodepoints;	// length in code points
 				std::size_t size;			// size in memory
 			};
+
+			std::ostream& operator<<(std::ostream& os, const ImmutableString& str);
 		}
 	}
 }

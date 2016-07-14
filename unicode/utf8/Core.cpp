@@ -1,7 +1,6 @@
 #include "Core.hpp"
 
-#include <cmath>
-#include <cstring>
+#include "InvalidEncoding.hpp"
 
 namespace dbr
 {
@@ -9,136 +8,198 @@ namespace dbr
 	{
 		namespace utf8
 		{
-			bool valid(const byte* coded, std::size_t num)
+			std::size_t sequenceLength(const char* coded)
 			{
-				for(auto ptr = coded; *ptr != '\0' && static_cast<std::size_t>(ptr - coded) < num; ++ptr)
+				auto lengthBits = (*coded) >> 4 & 0xf;
+
+				switch(lengthBits)
 				{
-					std::size_t numSeq = 0;
-					std::size_t bitPos = 0b10000000;
+					// 11110xxx
+					case 0xf:
+						return 4;
 
-					auto val = *ptr;
+					// 1110xxxx
+					case 0xe:
+						return 3;
 
-					while(val & bitPos && bitPos != 1)
-					{
-						bitPos >>= 1;
-						++numSeq;
-					}
+					// 110xxxxx
+					case 0xc:
+						return 2;
 
-					// UTF-8 does not have more than 4 byte sequences, and we should not encounter 0b10xxxxxx yet
-					if(numSeq > 4 || numSeq == 1)
-						return false;
+					// 0xxxxxxx
+					default:
+						return 1;
 
-					// early exit for 1 byte sequences (marker: 0)
-					if(numSeq == 0)
-						continue;
-
-					std::size_t bitsFirstByte = 7 - numSeq;				// 7 bits max used for sequence marking
-					const std::size_t codingBits = 6 * (numSeq - 1);	// 6 bits per continuation byte for the value
-					const std::size_t totalCodingBits = bitsFirstByte + codingBits;
-
-					// for building the U+xxxx hex notation value for checking minimum values
-					std::size_t pointVal = (*ptr & static_cast<std::size_t>(std::pow(2u, bitsFirstByte))) << totalCodingBits;
-
-					// move to the next byte in the sequence
-					++ptr;
-
-					for(std::size_t i = 1; i < numSeq; ++i, ++ptr)
-					{
-						// subsequent bytes in a sequence are in the form: 0b10xxxxxx
-						if((*ptr & 0b11000000) != 0b10000000)
-							return false;
-
-						pointVal += (*ptr & 0b111111) << (codingBits - 6 * i);	// 6 bits per continuation byte for the value
-					}
-
-					// check if pointVal is >= the minimum value for that byte sequence
-
-					// reset ptr for outer for loop increment
-					--ptr;
+					// continuation byte
+					case 0x8:
+						return 0;
 				}
-
-				return true;
 			}
 
-			bool isDiacritic(const byte* coded)
+			std::uint32_t decode(const char* coded)
 			{
-				std::size_t numSeq = 0;
-				std::size_t bitPos = 0b10000000;
+				std::size_t dummy;
+				return decode(coded, dummy);
+			}
 
-				auto val = *coded;
+			std::uint32_t decode(const char* coded, std::size_t& length)
+			{
+				length = sequenceLength(coded);
 
-				while(val & bitPos && bitPos != 1)
+				// UTF-8 does not have more than 4 byte sequences
+				if(length > 4)
+					throw InvalidEncoding("Sequence has an invalid length");
+				else if(length == 0)
+					throw InvalidEncoding("Sequence starts with continutation byte");
+
+				// 7 bits max from first byte, and 6 bits per continuation byte
+				const auto numBits = (7 - length) + 6 * (length - 1);
+
+				std::uint32_t seq = 0;
+
+				// get bits from first byte
+				switch(length)
 				{
-					bitPos >>= 1;
-					++numSeq;
+					case 1:
+						seq = (coded[0] & 0x7f);
+						break;
+
+					case 2:
+						seq = coded[0] & 0x1f;
+						break;
+
+					case 3:
+						seq = coded[0] & 0x0f;
+						break;
+
+					case 4:
+						seq = coded[0] & 0x03;
+						break;
 				}
 
-				std::size_t bitsFirstByte = 7 - numSeq;				// 7 bits max used for sequence marking
-				const std::size_t codingBits = 6 * (numSeq - 1);	// 6 bits per continuation byte for the value
-				const std::size_t totalCodingBits = bitsFirstByte + codingBits;
+				seq <<= 6 * (length - 1);
 
-				// for building the U+xxxx hex notation value for checking minimum values
-				std::size_t pointVal = (val & static_cast<std::size_t>(std::pow(2u, bitsFirstByte))) << totalCodingBits;
-
-				auto ptr = ++coded;
-				for(std::size_t i = 1; i < numSeq; ++i, ++ptr)
+				// add in continuation bytes
+				for(auto i = 1u; i < length; ++i)
 				{
-					// subsequent bytes in a sequence are in the form: 0b10xxxxxx
-					if((*ptr & 0b11000000) != 0b10000000)
-						return false;
-
-					pointVal += (*ptr & 0b111111) << (codingBits - 6 * i);	// 6 bits per continuation byte for the value
+					seq += (coded[i] & 0x3f) << (numBits - 6 * i);
 				}
 
+				return seq;
+			}
+
+			std::size_t valid(const char* coded, std::size_t count)
+			{
+				auto ptr = coded;
+
+				while(*ptr != '\0' && static_cast<std::size_t>(ptr - coded) < count)
+				{
+					auto len = sequenceLength(ptr);
+
+					if(len != 0)
+						ptr += len;
+					else
+						return ptr - coded;
+				}
+
+				return npos;
+			}
+
+			bool isDiacritic(const char* coded)
+			{
+				std::size_t len;
+				auto val = decode(coded, len);
+
+				return isDiacritic(val);
+			}
+
+			bool isDiacritic(std::uint32_t value)
+			{
 				// ranges of diacritical marks from: https://en.wikipedia.org/wiki/Combining_character
 
-				if(0x300 <= pointVal && pointVal <= 0x36f)
+				if(0x300 <= value && value < 0x370)
 					return true;
-
-				if(0x1ab0 <= pointVal && pointVal <= 0x1aff)
+				else if(0x1ab0 <= value && value < 0x1b00)
 					return true;
-
-				if(0x1dc0 <= pointVal && pointVal <= 0x1dff)
+				else if(0x1dc0 <= value && value < 0x1e00)
 					return true;
-
-				if(0x20d0 <= pointVal && pointVal <= 0x20ff)
+				else if(0x20d0 <= value && value < 0x2100)
 					return true;
-
-				if(0xfe20 <= pointVal && pointVal <= 0xfe2f)
+				else if(0xfe20 <= value && value < 0xfe30)
 					return true;
-
-				return false;
+				else
+					return false;
 			}
 
-			std::size_t codepointLength(const byte* coded)
+			std::size_t codepointLength(const char* coded, std::size_t count)
 			{
 				std::size_t len = 0;
+				auto ptr = coded;
 
-				for(auto ptr = coded; *ptr != '\0'; ++ptr)
+				while(*ptr != '\0' && static_cast<std::size_t>(ptr - coded) < count)
 				{
-					// the number of codepoints is the number of non-continuation bytes
-					if((*ptr & 0b11000000) != 0b10000000)
+					ptr += sequenceLength(ptr);
+					++len;
+				}
+
+				return len;
+			}
+
+			std::size_t characterLength(const char* coded, std::size_t count)
+			{
+				std::size_t len = 0;
+				auto ptr = coded;
+
+				while(*ptr != '\0' && static_cast<std::size_t>(ptr - coded) < count)
+				{
+					std::size_t valLen = 0;
+					auto val = decode(ptr, valLen);
+
+					// a codepoint is only a character if it is not a diacritic
+					if(!isDiacritic(val))
 						++len;
+
+					ptr += valLen;
 				}
 
 				return len;
 			}
 
-			std::size_t characterLength(const byte* coded)
+			std::size_t findNthCodepoint(const char* coded, std::size_t nth)
 			{
-				std::size_t len = 0;
+				auto ptr = coded;
 
-				for(auto ptr = coded; *ptr != '\0'; ++ptr)
+				for(auto i = 0u; i < nth; ++i)
 				{
-					// the number of codepoints is the number of non-continuation bytes
-					if((*ptr & 0b11000000) != 0b10000000)
-					{
-						if(!isDiacritic(ptr))
-							++len;
-					}
+					if(*ptr == '\0')
+						return npos;
+
+					ptr += sequenceLength(ptr);
 				}
 
-				return len;
+				return ptr - coded;
+			}
+
+			std::size_t findNthCharacter(const char* coded, std::size_t nth)
+			{
+				auto ptr = coded;
+
+				for(auto i = 0u; i < nth; ++i)
+				{
+					if(*ptr == '\0')
+						return npos;
+
+					std::size_t len = 0;
+					auto val = decode(ptr, len);
+
+					// diacritic marks aren't characters
+					if(isDiacritic(val))
+						--i;
+
+					ptr += sequenceLength(ptr);
+				}
+
+				return ptr - coded;
 			}
 		}
 	}

@@ -27,6 +27,7 @@
     <ClCompile Include="utf32\Core.cpp">
       <Filter>utf32</Filter>
     </ClCompile>
+    <ClCompile Include="Unicode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="utf32\String.hpp">

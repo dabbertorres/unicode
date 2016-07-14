@@ -1,6 +1,6 @@
 #include "ImmutableString.hpp"
 
-#include <cstring>
+#include <ostream>
 
 #include "InvalidEncoding.hpp"
 
@@ -11,60 +11,59 @@ namespace dbr
 		namespace utf8
 		{
 			ImmutableString::ImmutableString()
-			:	bytes(nullptr),
+				: bytes(nullptr),
 				numChars(0),
 				numCodepoints(0),
 				size(0)
 			{}
 
-			ImmutableString::ImmutableString(const byte* coded)
-			:	ImmutableString()
+			ImmutableString::ImmutableString(const char* coded)
+				: ImmutableString()
 			{
 				if(valid(coded))
 				{
 					numChars = characterLength(coded);
 					numCodepoints = codepointLength(coded);
-					size = std::strlen(coded);
-					bytes = std::shared_ptr<byte>(new byte[size], std::default_delete<byte[]>{});
+					size = bufferLength(coded);
+					bytes = std::shared_ptr<char>(new char[size], std::default_delete<char[]>{});
 
 					auto start = bytes.get();
 					std::copy(coded, coded + size, start);
 				}
 				else
 				{
-					throw InvalidEncoding("Could not construct imm::ImmutableString from invalid encoding.");
+					throw InvalidEncoding("Could not construct utf8::ImmutableString from invalid encoding.");
 				}
 			}
 
-			// copies 'num' codepoints from 'coded'
-			ImmutableString::ImmutableString(const byte* coded, std::size_t num)
-			:	ImmutableString()
+			// copies count bytes from coded
+			ImmutableString::ImmutableString(const char* coded, std::size_t count)
+				: ImmutableString()
 			{
-				if(valid(coded, num))
+				if(valid(coded, count))
 				{
-					numChars = characterLength(coded);
-					numCodepoints = codepointLength(coded);
-					size = std::strlen(coded);
-					bytes = std::shared_ptr<byte>(new byte[size], std::default_delete<byte[]>{});
+					numChars = characterLength(coded, count);
+					numCodepoints = codepointLength(coded, count);
+					size = count;
+					bytes = std::shared_ptr<char>(new char[size], std::default_delete<char[]>{});
 
-					auto start = bytes.get();
-					std::copy(coded, coded + size, start);
+					std::copy(coded, coded + size, bytes.get());
 				}
 				else
 				{
-					throw InvalidEncoding("Could not construct imm::ImmutableString from invalid encoding.");
+					throw InvalidEncoding("Could not construct utf8::ImmutableString from invalid encoding.");
 				}
 			}
 
 			ImmutableString::ImmutableString(const ImmutableString& other)
-			:	bytes(other.bytes),
+				: bytes(other.bytes),
 				numChars(other.numChars),
 				numCodepoints(other.numCodepoints),
 				size(other.size)
 			{}
 
 			ImmutableString::ImmutableString(ImmutableString&& other)
-			:	bytes(std::move(other.bytes)),
+				: bytes(std::move(other.bytes)),
 				numChars(other.numChars),
 				numCodepoints(other.numCodepoints),
 				size(other.size)
@@ -74,12 +73,38 @@ namespace dbr
 				other.numCodepoints = 0;
 			}
 
-			std::size_t ImmutableString::chars() const
+			ImmutableString ImmutableString::substr(std::size_t start, std::size_t count) const
+			{
+				auto startPtr = bytes.get();
+				std::size_t memStart = findNthCharacter(bytes.get(), start);
+
+				if(memStart == npos)
+					throw std::out_of_range("start");
+
+				startPtr += memStart;
+
+				if(count != npos)
+				{
+					std::size_t byteCount = findNthCharacter(startPtr, count);
+
+					if(byteCount == npos)
+						throw std::out_of_range("start + count");
+
+					return{startPtr, byteCount};
+				}
+				else
+				{
+					// to end of string
+					return{startPtr};
+				}
+			}
+
+			std::size_t ImmutableString::charCount() const
 			{
 				return numChars;
 			}
 
-			std::size_t ImmutableString::codepoints() const
+			std::size_t ImmutableString::codepointCount() const
 			{
 				return numCodepoints;
 			}
@@ -94,9 +119,14 @@ namespace dbr
 				return numCodepoints == 0;
 			}
 
-			const byte* ImmutableString::data() const
+			const char* ImmutableString::data() const
 			{
 				return bytes.get();
+			}
+
+			std::ostream& operator<<(std::ostream& os, const ImmutableString& str)
+			{
+				return os.write(str.data(), str.memSize());
 			}
 		}
 	}

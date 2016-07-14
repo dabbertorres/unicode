@@ -13,7 +13,7 @@ namespace dbr
 			{
 			public:
 				String();
-				String(const byte* coded);
+				String(const char* coded);
 
 				String(const String& other);
 				String(String&& other);
@@ -21,12 +21,12 @@ namespace dbr
 				~String() = default;
 
 				// returns number of codepoints in the encoded sequence
-				std::size_t codepoints() const;
+				std::size_t codepointCount() const;
 
 				// returns number of bytes
 				std::size_t memSize() const;
 
-				const byte* data() const;
+				const char* data() const;
 
 			private:
 
