@@ -36,7 +36,6 @@ namespace dbr
 				}
 			}
 
-			// copies count bytes from coded
 			ImmutableString::ImmutableString(const char* coded, std::size_t count)
 				: ImmutableString()
 			{
@@ -122,6 +121,16 @@ namespace dbr
 			const char* ImmutableString::data() const
 			{
 				return bytes.get();
+			}
+
+			Char ImmutableString::operator[](std::size_t idx) const
+			{
+				auto coded = bytes.get();
+
+				coded += findNthCharacter(coded, idx);
+				auto len = sequenceLength(coded);
+
+				return{coded, len};
 			}
 
 			std::ostream& operator<<(std::ostream& os, const ImmutableString& str)

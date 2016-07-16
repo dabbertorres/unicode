@@ -15,6 +15,9 @@ namespace dbr
 				String();
 				String(const char* coded);
 
+				// copies count bytes from coded
+				String(const char* coded, std::size_t count);
+
 				String(const String& other);
 				String(String&& other);
 

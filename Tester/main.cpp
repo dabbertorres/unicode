@@ -22,5 +22,11 @@ int main(int argc, char** argv)
 	std::string narrowStr(utf8Str.data(), utf8Str.memSize());
 	std::cout << narrowStr << '\n';
 
+	auto utf88th = utf8Str[8];
+	auto narrow8th = narrowStr[8];
+
+	std::cout << "utf8: " << utf88th << '\n';
+	std::cout << "narrow: " << narrow8th << '\n';
+
 	return 0;
 }

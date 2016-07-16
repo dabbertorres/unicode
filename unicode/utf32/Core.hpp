@@ -12,7 +12,7 @@ namespace dbr
 	{
 		namespace utf32
 		{
-
+			using Char = std::uint32_t;
 		}
 	}
 }

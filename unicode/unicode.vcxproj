@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Conversion.cpp" />
     <ClCompile Include="Unicode.cpp" />
     <ClCompile Include="utf32\Core.cpp" />
     <ClCompile Include="utf32\ImmutableString.cpp" />
@@ -28,6 +29,7 @@
     <ClCompile Include="utf8\String.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Conversion.hpp" />
     <ClInclude Include="Unicode.hpp" />
     <ClInclude Include="InvalidEncoding.hpp" />
     <ClInclude Include="utf32\Core.hpp" />

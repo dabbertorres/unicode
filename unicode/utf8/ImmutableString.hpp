@@ -39,7 +39,10 @@ namespace dbr
 
 				bool empty() const;
 
+				// NOT null-terminated
 				const char* data() const;
+
+				Char operator[](std::size_t idx) const;
 
 			private:
 				std::shared_ptr<char> bytes;

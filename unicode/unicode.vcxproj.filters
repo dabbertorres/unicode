@@ -28,6 +28,7 @@
       <Filter>utf32</Filter>
     </ClCompile>
     <ClCompile Include="Unicode.cpp" />
+    <ClCompile Include="Conversion.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="utf32\String.hpp">
@@ -50,5 +51,6 @@
     <ClInclude Include="utf32\Core.hpp">
       <Filter>utf32</Filter>
     </ClInclude>
+    <ClInclude Include="Conversion.hpp" />
   </ItemGroup>
 </Project>

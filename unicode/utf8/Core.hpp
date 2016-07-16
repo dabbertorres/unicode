@@ -4,6 +4,8 @@
 #include <cstddef>
 #include <cstdint>
 
+#include <ostream>
+
 #include "Unicode.hpp"
 
 namespace dbr
@@ -12,6 +14,13 @@ namespace dbr
 	{
 		namespace utf8
 		{
+			// simple variable-length character data-structure
+			struct Char
+			{
+				const char* const data;
+				std::size_t byteCount;
+			};
+
 			// returns the length (in bytes) of the unicode sequence starting at coded
 			std::size_t sequenceLength(const char* coded);
 
@@ -51,6 +60,8 @@ namespace dbr
 			// finds the nth character in coded, returning the byte offset from coded
 			// returns npos if coded does not have n + 1 characters
 			std::size_t findNthCharacter(const char* coded, std::size_t nth);
+
+			std::ostream& operator<<(std::ostream& os, const Char& ch);
 		}
 	}
 }

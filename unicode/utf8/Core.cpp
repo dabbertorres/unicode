@@ -10,7 +10,7 @@ namespace dbr
 		{
 			std::size_t sequenceLength(const char* coded)
 			{
-				auto lengthBits = (*coded) >> 4 & 0xf;
+				auto lengthBits = (*coded) >> 4 & 0xfu;
 
 				switch(lengthBits)
 				{
@@ -200,6 +200,11 @@ namespace dbr
 				}
 
 				return ptr - coded;
+			}
+
+			std::ostream& operator<<(std::ostream& os, const Char& ch)
+			{
+				return os.write(ch.data, ch.byteCount);
 			}
 		}
 	}
