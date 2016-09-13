@@ -6,11 +6,10 @@ namespace dbr
 	{
 		std::size_t bufferLength(const char* buf)
 		{
-			std::size_t len = 0;
+			auto* ptr = buf
+			for(; *ptr != '\0'; ++ptr);
 
-			for(auto* ptr = buf; *ptr != '\0'; ++ptr, ++len);
-
-			return len;
+			return ptr - buf;
 		}
 	}
 }
