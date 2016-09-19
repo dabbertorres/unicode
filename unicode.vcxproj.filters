@@ -13,10 +13,72 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\utf8">
+      <UniqueIdentifier>{7dc1e410-abad-4e5f-88ff-34f95612b041}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\utf32">
+      <UniqueIdentifier>{3b4b90b7-112e-4960-866b-bea558ff15f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\utf32">
+      <UniqueIdentifier>{267a9feb-a111-473f-8b13-abfe75624b30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\utf8">
+      <UniqueIdentifier>{f7b18940-2c97-442f-b4fe-199a8baf2bf9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="Conversion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Unicode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utf32\Core.cpp">
+      <Filter>Source Files\utf32</Filter>
+    </ClCompile>
+    <ClCompile Include="utf32\ImmutableString.cpp">
+      <Filter>Source Files\utf32</Filter>
+    </ClCompile>
+    <ClCompile Include="utf32\String.cpp">
+      <Filter>Source Files\utf32</Filter>
+    </ClCompile>
+    <ClCompile Include="utf8\Core.cpp">
+      <Filter>Source Files\utf8</Filter>
+    </ClCompile>
+    <ClCompile Include="utf8\ImmutableString.cpp">
+      <Filter>Source Files\utf8</Filter>
+    </ClCompile>
+    <ClCompile Include="utf8\String.cpp">
+      <Filter>Source Files\utf8</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Conversion.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InvalidEncoding.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Unicode.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utf8\ImmutableString.hpp">
+      <Filter>Header Files\utf8</Filter>
+    </ClInclude>
+    <ClInclude Include="utf8\String.hpp">
+      <Filter>Header Files\utf8</Filter>
+    </ClInclude>
+    <ClInclude Include="utf8\Core.hpp">
+      <Filter>Header Files\utf8</Filter>
+    </ClInclude>
+    <ClInclude Include="utf32\Core.hpp">
+      <Filter>Header Files\utf32</Filter>
+    </ClInclude>
+    <ClInclude Include="utf32\ImmutableString.hpp">
+      <Filter>Header Files\utf32</Filter>
+    </ClInclude>
+    <ClInclude Include="utf32\String.hpp">
+      <Filter>Header Files\utf32</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

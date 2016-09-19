@@ -24,7 +24,7 @@ namespace dbr
 			return{out.get()};
 		}
 
-		utf8::ImmutableString toUTF8(const utf32::ImmutableString& str)
+		utf8::ImmutableString toUTF8(const utf32::ImmutableString& /*str*/)
 		{
 			// TODO
 			return{};
